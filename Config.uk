@@ -1,0 +1,4 @@
+config LIBHTTP_PARSER
+	bool "http-parser - a parser for HTTP messages"
+	default n
+	select LIBNEWLIBC
