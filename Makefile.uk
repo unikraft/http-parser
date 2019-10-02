@@ -1,0 +1,79 @@
+#  http-parser Makefile.uk
+#
+#  Authors: Felipe Huici <felipe.huici@neclab.eu>
+#
+#
+#  Copyright (c) 2019, NEC Laboratories Europe GmbH, NEC Corporation.
+#                      All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the names of its
+#     contributors may be used to endorse or promote products derived from
+#     this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+#  THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
+#
+
+################################################################################
+# Library registration
+################################################################################
+$(eval $(call addlib_s,libhttp_parser,$(CONFIG_LIBHTTP_PARSER)))
+
+################################################################################
+# Sources
+################################################################################
+LIBHTTP_PARSER_VERSION=2.8.1
+LIBHTTP_PARSER_URL=https://github.com/nodejs/http-parser/archive/v$(LIBHTTP_PARSER_VERSION).zip
+LIBHTTP_PARSER_SUBDIR=http-parser-$(LIBHTTP_PARSER_VERSION)
+$(eval $(call fetch,libhttp_parser,$(LIBHTTP_PARSER_URL),v$(LIBHTTP_PARSER_VERSION).zip))
+
+################################################################################
+# Helpers
+################################################################################
+LIBHTTP_PARSER_EXTRACTED=$(LIBHTTP_PARSER_ORIGIN)/$(LIBHTTP_PARSER_SUBDIR)
+
+################################################################################
+# Library includes
+################################################################################
+$(call mk_sub_build_dir,libhttp_parser/include)
+CINCLUDES-$(CONFIG_LIBHTTP_PARSER) += -I$(LIBHTTP_PARSER_BUILD)/include
+CXXINCLUDES-$(CONFIG_LIBHTTP_PARSER) += -I$(LIBHTTP_PARSER_BUILD)/include
+
+################################################################################
+# Sources
+################################################################################
+LIBHTTP_PARSER_SRCS-y += $(LIBHTTP_PARSER_EXTRACTED)/http_parser.c
+
+################################################################################
+# Libray API headers
+################################################################################
+# Make sure that make does not treat the headers from the archive as intermediate
+.PRECIOUS: $(LIBHTTP_PARSER_EXTRACTED)/%.h
+
+$(LIBHTTP_PARSER_EXTRACTED)/%.h: $(LIBHTTP_PARSER_BUILD)/.origin
+	@: # Empty recipe to enforce dependency to archive extraction
+
+$(LIBHTTP_PARSER_BUILD)/include/%.h: $(LIBHTTP_PARSER_EXTRACTED)/%.h
+	$(call verbose_cmd,LN,libhttp_parser':' $(notdir $@),ln -sf $< $@)
+
+UK_PREPARE += $(LIBHTTP_PARSER_BUILD)/include/http_parser.h
