@@ -40,7 +40,7 @@ $(eval $(call addlib_s,libhttp_parser,$(CONFIG_LIBHTTP_PARSER)))
 ################################################################################
 # Sources
 ################################################################################
-LIBHTTP_PARSER_VERSION=2.8.1
+LIBHTTP_PARSER_VERSION=2.9.4
 LIBHTTP_PARSER_URL=https://github.com/nodejs/http-parser/archive/v$(LIBHTTP_PARSER_VERSION).zip
 LIBHTTP_PARSER_SUBDIR=http-parser-$(LIBHTTP_PARSER_VERSION)
 $(eval $(call fetch,libhttp_parser,$(LIBHTTP_PARSER_URL),v$(LIBHTTP_PARSER_VERSION).zip))
